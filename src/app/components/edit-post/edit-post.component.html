@@ -1,0 +1,29 @@
+<div class="wrapper">
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+
+  <div class="form" [formGroup]="form" *ngIf="!isLoading">
+
+    <mat-form-field>
+      <mat-label>Title</mat-label>
+      <input matInput placeholder="Enter your title" formControlName="title">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Content</mat-label>
+      <input matInput placeholder="Enter your content" formControlName="content">
+    </mat-form-field>
+
+    <button mat-raised-button routerLink="/posts">Cancel</button>
+    <button mat-raised-button
+            id="create-article-btn"
+            color="primary"
+            [disabled]="!form.valid"
+            (click)="updatePost()"
+    >
+      Publish
+    </button>
+
+  </div>
+</div>
+
+
