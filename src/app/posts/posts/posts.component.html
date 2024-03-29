@@ -1,7 +1,7 @@
 <div class="wrapper">
 
   <div class="add-post-container">
-    <div class="form" [formGroup]="form">
+    <div class="form" [formGroup]="form" *ngIf="userIsLoggedIn">
       <mat-form-field>
         <mat-label>Title</mat-label>
         <input matInput placeholder="Enter your title" formControlName="title">
@@ -36,9 +36,9 @@
             <img [src]="post.imagePath" alt="image">
           </div>
         </mat-card-content>
-        <mat-card-footer class="post__actions">
+        <mat-card-footer class="post__actions" *ngIf="userIsLoggedIn">
           <button mat-raised-button color="primary" [routerLink]="[ '/edit-post/', post.id ]">Edit post</button>
-          <button mat-raised-button color="primary" (click)="deletePost(post.id)">Delete post</button>
+          <button mat-raised-button color="primary" (click)="deletePost(post.id)" [disabled]="checkUserId(post.creatorId)">Delete post</button>
         </mat-card-footer>
       </mat-card>
 

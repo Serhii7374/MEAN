@@ -7,6 +7,7 @@ interface Post {
   content: string,
   _id: string,
   imagePath: string,
+  creator: string
 }
 
 @Injectable({
@@ -35,12 +36,14 @@ export class PostService {
                 title: post.title,
                 content: post.content,
                 id: post._id,
-                imagePath: post.imagePath
+                imagePath: post.imagePath,
+                creatorId: post.creator
               })),
         maxPosts: postData.maxPosts
           }))
       )
       .subscribe(postData => {
+        console.log(postData)
         this.postsSubject.next(postData.posts);
         this.countSubject.next(postData.maxPosts);
       });
@@ -63,14 +66,18 @@ export class PostService {
   }
 
   addPost(post: any): void {
+    const userId = localStorage.getItem('userId')!.toString()
+    console.log('addPost userId', userId)
     const postData = new FormData();
     postData.append('title', post.title);
     postData.append('content', post.content);
     postData.append('image', post.image, post.title);
+    postData.append('creator', userId);
     this.http.post<{message: string, post: Post}>('http://localhost:3000/api/posts', postData)
       .subscribe((responseData) => {
         post.id = responseData.post._id;
         post.imagePath = responseData.post.imagePath;
+        post.creatorId = userId;
         const currentPosts = this.postsSubject.getValue();
         this.postsSubject.next([...currentPosts, post]);
       });

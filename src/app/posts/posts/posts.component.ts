@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PostService } from '../../shared/services/post.service';
 import { RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {AuthService} from "../../shared/services/auth.service";
 
 @Component({
   selector: 'app-posts',
@@ -30,14 +31,22 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 export class PostsComponent implements OnInit {
   posts$ = this.postsService.posts$;
   maxPosts$ = this.postsService.postsCount$;
+  userIsLoggedIn = false;
   imagePreview!: string;
   pageSize = 2;
   currentPage = 1;
+  userId = '';
 
-  constructor(private postsService: PostService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {}
+  constructor(private postsService: PostService,
+              private fb: FormBuilder,
+              private cdr: ChangeDetectorRef,
+              private authService: AuthService) {
+    this.checkIsUserAuth();
+  }
 
   ngOnInit(): void {
     this.getPosts();
+    this.userId = localStorage.getItem('userId')?.toString() || '';
   }
 
   form = this.fb.group({
@@ -80,5 +89,17 @@ export class PostsComponent implements OnInit {
     this.currentPage = pageData.pageIndex + 1;
     this.pageSize = pageData.pageSize;
     this.postsService.getPosts(this.pageSize, this.currentPage);
+  }
+
+  checkIsUserAuth(): void {
+    effect(() => {
+      this.userIsLoggedIn = this.authService.userIsLoggedIn()
+      this.cdr.detectChanges();
+    });
+  }
+
+  checkUserId(userId: string): boolean {
+    console.log('this.userId is ', this.userId, 'userId is  ' , userId)
+    return !(this.userId === userId);
   }
 }
