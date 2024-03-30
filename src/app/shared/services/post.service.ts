@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, map, Observable } from 'rxjs';
+import { environment } from "../../../environments/environment.development";
 
 interface Post {
   title: string,
@@ -9,6 +10,8 @@ interface Post {
   imagePath: string,
   creator: string
 }
+
+const BACKEND_URL = environment.apiUrl + 'posts/';
 
 @Injectable({
   providedIn: 'root'
@@ -23,11 +26,12 @@ export class PostService {
   private singlePostSubject = new BehaviorSubject<any>('');
   public singlePost$ = this.singlePostSubject.asObservable();
 
+
   constructor(private http: HttpClient) {}
 
   getPosts(pageSize: number, page: number): void {
     const queryParams = `?pagesize=${pageSize}&page=${page}`;
-    this.http.get<{message: string, posts: any, maxPosts: number }>('http://localhost:3000/api/posts' + queryParams)
+    this.http.get<{message: string, posts: any, maxPosts: number }>(BACKEND_URL + queryParams)
       .pipe(
         map(postData => (
           { posts: postData.posts
@@ -50,7 +54,8 @@ export class PostService {
   }
 
   getPostsById(id: string): Observable<any> {
-    return this.http.get<any>('http://localhost:3000/api/posts/' + id)
+    console.log('getPostsById', id)
+    return this.http.get<any>(BACKEND_URL + id)
         .pipe(map(postData => ({
           title: postData.title,
           content: postData.content,
@@ -60,21 +65,22 @@ export class PostService {
   }
 
   updatePost(id: string, post: any): void {
-    this.http.put<any>('http://localhost:3000/api/posts/' + id, post).subscribe((res) => {
+    this.http.put<any>(BACKEND_URL + id, post).subscribe((res) => {
       console.log(res);
     });
   }
 
   addPost(post: any): void {
     const userId = localStorage.getItem('userId')!.toString()
-    console.log('addPost userId', userId)
     const postData = new FormData();
     postData.append('title', post.title);
     postData.append('content', post.content);
     postData.append('image', post.image, post.title);
     postData.append('creator', userId);
-    this.http.post<{message: string, post: Post}>('http://localhost:3000/api/posts', postData)
+    this.http.post<{message: string, post: Post}>(BACKEND_URL, postData)
       .subscribe((responseData) => {
+        console.log('addPost', responseData)
+        console.log('post._id', post._id)
         post.id = responseData.post._id;
         post.imagePath = responseData.post.imagePath;
         post.creatorId = userId;
@@ -84,7 +90,7 @@ export class PostService {
   }
 
   deletePost(id: string): Observable<any> {
-    return this.http.delete('http://localhost:3000/api/posts/' + id);
+    return this.http.delete(BACKEND_URL + id);
   }
 
 }

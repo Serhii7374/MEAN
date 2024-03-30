@@ -7,7 +7,7 @@ const path = require('path');
 
 const app = express();
 
-mongoose.connect('mongodb+srv://Olmer:L9wjyfKe7JPW5uIM@cluster0.yhdrtei.mongodb.net/?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://Olmer:' + process.env.MONGO_ATLAS_PW + '@cluster0.yhdrtei.mongodb.net/')
     .then(() => {
       console.log('Connections works!')
     })
